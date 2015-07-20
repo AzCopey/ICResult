@@ -38,32 +38,52 @@ namespace IC
 	class IResult
 	{
 	public:
+
+		/// Bool conversion operator. Allows validity queries in the form:
+		///
+		///     if (result) {...}
+		///
+		/// This unfortunately needs to be implemented in the interface as VS2015 doesn't
+		/// allow the use of explicit on virtual methods.
+		///
+		/// @return Whether or not the result describes an error case.
+		///
+		explicit operator bool() const noexcept { return isOkay(); };
+
 		/// Whether or not the result describes an error case. Typically this isn't called 
 		/// directly, instead the IResult can be treated as a boolean, for example: 
 		///
-		///    if (result) {...}
+		///     if (result) {...}
 		///
 		/// @return Whether or not the result describes an error case. 
 		///
-		virtual bool isOkay() const = 0;
+		virtual bool isOkay() const noexcept = 0;
 
-		/// TODO
+		/// @return A message describing the error. If not error occurred this will return
+		/// an empty string.
 		///
-		virtual const std::string& getErrorMessage() const = 0;
+		virtual const std::string& getErrorMessage() const noexcept = 0;
 
-		/// TODO
+		/// @return A message describing this error and any errors which caused this error
+		/// to occur. In other words, the output contains the error message for this and
+		/// appends the full error message of the output from getCausedBy(). If no error
+		/// occured this will return an empty string.
 		///
-		virtual std::string getFullErrorMessage() const = 0;
+		virtual std::string getFullErrorMessage() const noexcept = 0;
 
-		/// TODO
+		/// @return A pointer to the error which caused this one to occur. If this is not
+		/// an error, or it wasn't caused by another this will return null.
 		///
-		virtual const IResult* getCausedBy() const = 0;
+		virtual const IResult* getCausedBy() const noexcept = 0;
 
-		/// TODO
+		/// This is used internally to allow different derrived classes to clone another
+		/// and therefore should be called rarely by the user of the interface.
 		///
-		virtual std::unique_ptr<const IResult> clone() const = 0;
+		/// @return A clone of this as a unique pointer. This 
+		///
+		virtual std::unique_ptr<const IResult> clone() const noexcept = 0;
 
-		virtual ~IResult() {}
+		virtual ~IResult() noexcept {}
 	};
 }
 

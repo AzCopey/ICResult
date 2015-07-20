@@ -30,66 +30,97 @@
 
 namespace IC
 {
-	/// TODO
+	/// A simple alternate to checked exceptions for applications where exceptions would not
+	/// be appropriate. 
+	/// 
+	/// This attempts to solve two problems. First of all it removes the requirement to
+	/// supply output parameters from all methods which return a value as well as an error.
+	/// For example:
+	///
+	///     bool tryGetValue(float& out_value);
+	///
+	/// Secondly it reduces the loss of context that often occurs in methods like this. When 
+	/// false is returned an error presumably occurred internally, but we have no access to
+	/// what caused it. 
+	///
+	/// Some systems may print to the console the internal error, however this becomes a 
+	/// problem when the consumer of of the method gracefully handles the error. The printed 
+	/// internal error is now no longer relevant and becomes spam. It can obscure other
+	/// genuine errors.
+	///
+	/// To resolve these issues a Result can be used. This provides the means to return either
+	/// an output value or an error. 
+	///
+	///     Result<float, ErrorEnum> tryGetValue();
+	///
+	/// In the case of an error a description can be provided, reducing loss of context. In 
+	/// addition, if the error was caused by another, it can also be returned through the 
+	/// Result. The user can then use getFullErrorMessage() to print the current error 
+	/// descripion and, recursively, the errors that caused it.
+	///
+	/// For convenience, BoolResult has been provided which uses a boolean for the error
+	/// type.
+	///
+	///     BoolResult<float> tryGetValue();
 	///
 	template <typename TValue, typename TError, TError TErrorOkay = TError()> class Result final : public IResult
 	{
 	public:
 		/// TODO
 		///
-		Result(const TValue& in_value);
+		explicit Result(const TValue& in_value) noexcept;
 
 		/// TODO
 		///
-		Result(TError in_error, const std::string& in_errorMessage);
+		Result(TError in_error, const std::string& in_errorMessage) noexcept;
 
 		/// TODO
 		///
-		Result(TError in_error, const std::string& in_errorMessage, const IResult& in_causedBy);
+		Result(TError in_error, const std::string& in_errorMessage, const IResult& in_causedBy) noexcept;
 
 		/// TODO
 		///
-		Result(const Result<TValue, TError, TErrorOkay>& in_toCopy);
+		Result(const Result<TValue, TError, TErrorOkay>& in_toCopy) noexcept;
 
 		/// TODO
 		///
-		Result(Result<TValue, TError, TErrorOkay>&& in_toMove);
+		Result(Result<TValue, TError, TErrorOkay>&& in_toMove) noexcept;
 
 		/// TODO
 		///
-		Result<TValue, TError, TErrorOkay>& operator=(const Result<TValue, TError, TErrorOkay>& in_toCopy);
+		Result<TValue, TError, TErrorOkay>& operator=(const Result<TValue, TError, TErrorOkay>& in_toCopy) noexcept;
 
 		/// TODO
 		///
-		Result<TValue, TError, TErrorOkay>& operator=(Result<TValue, TError, TErrorOkay>&& in_toMove);
+		Result<TValue, TError, TErrorOkay>& operator=(Result<TValue, TError, TErrorOkay>&& in_toMove) noexcept;
 
 		/// TODO
 		///
-		bool isOkay() const override;
+		bool isOkay() const noexcept override;
 
 		/// TODO
 		///
-		const TValue& getValue() const;
+		const TValue& getValue() const noexcept;
 
 		/// TODO
 		///
-		TError getError() const;
+		TError getError() const noexcept;
 
 		/// TODO
 		///
-		const std::string& getErrorMessage() const override;
+		const std::string& getErrorMessage() const noexcept override;
 
 		/// TODO
 		///
-		std::string getFullErrorMessage() const override;
+		std::string getFullErrorMessage() const noexcept override;
 
 		/// TODO
 		///
-		const IResult* getCausedBy() const override;
+		const IResult* getCausedBy() const noexcept override;
 
 		/// TODO
 		///
-		std::unique_ptr<const IResult> clone() const override;
+		std::unique_ptr<const IResult> clone() const noexcept override;
 
 	private:
 		TValue m_value;
