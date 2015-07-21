@@ -14,8 +14,8 @@ Secondly it reduces the loss of context that often occurs in methods like this. 
 false is returned an error presumably occurred internally, but we have no access to
 what caused it. 
 
-Some systems may print to the console the internal error, however this becomes a 
-problem when the consumer of of the method gracefully handles the error. The printed 
+Some systems may print the internal error to the console, however this becomes a 
+problem when the consumer of the method gracefully handles the error. The printed 
 internal error is now no longer relevant and becomes spam. It can obscure other
 genuine errors.
 

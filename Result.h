@@ -66,59 +66,83 @@ namespace IC
 	template <typename TValue, typename TError, TError TErrorOkay = TError()> class Result final : public IResult
 	{
 	public:
-		/// TODO
+		/// Creates a successful result with the given value.
+		/// 
+		/// @param in_value - The output value.
 		///
 		explicit Result(const TValue& in_value) noexcept;
 
-		/// TODO
+		/// Creates a failed result with the given error and message.
+		///
+		/// @param in_error - The error that occurred.
+		/// @param in_errorMessage - A description of the error that occurred.
 		///
 		Result(TError in_error, const std::string& in_errorMessage) noexcept;
 
-		/// TODO
+		/// Creates a failed result with the given error, message and the result that caused the error.
+		///
+		/// @param in_error - The error that occurred.
+		/// @param in_errorMessage - A description of the error that occurred.
 		///
 		Result(TError in_error, const std::string& in_errorMessage, const IResult& in_causedBy) noexcept;
 
-		/// TODO
+		/// @param in_toCopy - The result which should be copied.
 		///
 		Result(const Result<TValue, TError, TErrorOkay>& in_toCopy) noexcept;
 
-		/// TODO
+		/// @param in_toMove - The result which should be moved into this.
 		///
 		Result(Result<TValue, TError, TErrorOkay>&& in_toMove) noexcept;
 
-		/// TODO
+		/// @param in_toCopy - The result which should be copied.
 		///
 		Result<TValue, TError, TErrorOkay>& operator=(const Result<TValue, TError, TErrorOkay>& in_toCopy) noexcept;
 
-		/// TODO
+		/// @param in_toMove - The result which should be moved into this.
 		///
 		Result<TValue, TError, TErrorOkay>& operator=(Result<TValue, TError, TErrorOkay>&& in_toMove) noexcept;
 
-		/// TODO
+		/// Whether or not the result describes an error case. Typically this isn't called 
+		/// directly, instead the IResult can be treated as a boolean, for example: 
+		///
+		///     if (result) {...}
+		///
+		/// This must be checked prior to getting the value.
+		///
+		/// @return Whether or not the result describes an error case. 
 		///
 		bool isOkay() const noexcept override;
 
-		/// TODO
+		/// Before calling this isOkay() should be checked to ensure the result was successful
+		/// therefore has a value.
+		///
+		/// @return The value.
 		///
 		const TValue& getValue() const noexcept;
 
-		/// TODO
+		/// @return The error that occurred.
 		///
 		TError getError() const noexcept;
 
-		/// TODO
+		/// @return A message describing the error. If not error occurred this will return
+		/// an empty string.
 		///
 		const std::string& getErrorMessage() const noexcept override;
 
-		/// TODO
+		/// @return A message describing this error and any errors which caused this error
+		/// to occur. In other words, the output contains the error message for this and
+		/// appends the full error message of the output from getCausedBy(). If no error
+		/// occured this will return an empty string.
 		///
 		std::string getFullErrorMessage() const noexcept override;
 
-		/// TODO
+		/// @return A pointer to the error which caused this one to occur. If this is not
+		/// an error, or it wasn't caused by another this will return null.
 		///
 		const IResult* getCausedBy() const noexcept override;
 
-		/// TODO
+		/// This is used internally to allow different derrived classes to clone another
+		/// and therefore should be called rarely by the user of the class.
 		///
 		std::unique_ptr<const IResult> clone() const noexcept override;
 
@@ -129,6 +153,8 @@ namespace IC
 		std::unique_ptr<const IResult> m_causedBy;
 	};
 
+	/// A convenience typedef for results which use a boolean error value.
+	///
 	template <typename TValue> using BoolResult = Result<TValue, bool, true>;
 }
 
