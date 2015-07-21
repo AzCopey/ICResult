@@ -43,8 +43,8 @@ namespace IC
 	/// false is returned an error presumably occurred internally, but we have no access to
 	/// what caused it. 
 	///
-	/// Some systems may print to the console the internal error, however this becomes a 
-	/// problem when the consumer of of the method gracefully handles the error. The printed 
+	/// Some systems may print the internal error to the console, however this becomes a 
+	/// problem when the consumer of the method gracefully handles the error. The printed 
 	/// internal error is now no longer relevant and becomes spam. It can obscure other
 	/// genuine errors.
 	///
@@ -63,14 +63,14 @@ namespace IC
 	///
 	///     BoolResult<float> tryGetValue();
 	///
-	template <typename TValue, typename TError, TError TErrorOkay = TError()> class Result final : public IResult
+	template <typename TValue, typename TError, TError TErrorSuccess = TError()> class Result final : public IResult
 	{
 	public:
 		/// Creates a successful result with the given value.
 		/// 
 		/// @param in_value - The output value.
 		///
-		explicit Result(const TValue& in_value) noexcept;
+		Result(const TValue& in_value) noexcept;
 
 		/// Creates a failed result with the given error and message.
 		///
@@ -88,19 +88,19 @@ namespace IC
 
 		/// @param in_toCopy - The result which should be copied.
 		///
-		Result(const Result<TValue, TError, TErrorOkay>& in_toCopy) noexcept;
+		Result(const Result<TValue, TError, TErrorSuccess>& in_toCopy) noexcept;
 
 		/// @param in_toMove - The result which should be moved into this.
 		///
-		Result(Result<TValue, TError, TErrorOkay>&& in_toMove) noexcept;
+		Result(Result<TValue, TError, TErrorSuccess>&& in_toMove) noexcept;
 
 		/// @param in_toCopy - The result which should be copied.
 		///
-		Result<TValue, TError, TErrorOkay>& operator=(const Result<TValue, TError, TErrorOkay>& in_toCopy) noexcept;
+		Result<TValue, TError, TErrorSuccess>& operator=(const Result<TValue, TError, TErrorSuccess>& in_toCopy) noexcept;
 
 		/// @param in_toMove - The result which should be moved into this.
 		///
-		Result<TValue, TError, TErrorOkay>& operator=(Result<TValue, TError, TErrorOkay>&& in_toMove) noexcept;
+		Result<TValue, TError, TErrorSuccess>& operator=(Result<TValue, TError, TErrorSuccess>&& in_toMove) noexcept;
 
 		/// Whether or not the result describes an error case. Typically this isn't called 
 		/// directly, instead the IResult can be treated as a boolean, for example: 
@@ -111,40 +111,44 @@ namespace IC
 		///
 		/// @return Whether or not the result describes an error case. 
 		///
-		bool isOkay() const noexcept override;
+		bool wasSuccessful() const noexcept override;
 
-		/// Before calling this isOkay() should be checked to ensure the result was successful
-		/// therefore has a value.
+		/// Before calling this wasSuccessful() should be checked to ensure the result was
+		/// successful therefore has a value.
 		///
 		/// @return The value.
 		///
 		const TValue& getValue() const noexcept;
 
-		/// @return The error that occurred.
+		/// @return The error that occurred. If no error occurred this will return 
+		/// TErrorSuccess
 		///
 		TError getError() const noexcept;
 
-		/// @return A message describing the error. If not error occurred this will return
-		/// an empty string.
+		/// @return A message describing the error. This should not  be called if no error 
+		/// occurred.
 		///
 		const std::string& getErrorMessage() const noexcept override;
 
 		/// @return A message describing this error and any errors which caused this error
 		/// to occur. In other words, the output contains the error message for this and
-		/// appends the full error message of the output from getCausedBy(). If no error
-		/// occured this will return an empty string.
+		/// appends the full error message of the output from getCausedBy(). This should not
+		/// be called if no error occurred. This will be evaluated each time the method is 
+		/// called. This is to avoid upfront cost if it isn't used.
 		///
 		std::string getFullErrorMessage() const noexcept override;
 
-		/// @return A pointer to the error which caused this one to occur. If this is not
-		/// an error, or it wasn't caused by another this will return null.
+		/// @return A pointer to the error which caused this one to occur. If this  wasn't
+		/// caused by another this will return null.  This should not be called if no error
+		/// occurred.
 		///
 		const IResult* getCausedBy() const noexcept override;
 
 		/// This is used internally to allow different derrived classes to clone another
-		/// and therefore should be called rarely by the user of the class.
+		/// and therefore should be called rarely by the user of the class.  This should 
+		/// not be called if no error occurred.
 		///
-		std::unique_ptr<const IResult> clone() const noexcept override;
+		std::unique_ptr<const IResult> cloneError() const noexcept override;
 
 	private:
 		TValue m_value;
@@ -156,6 +160,16 @@ namespace IC
 	/// A convenience typedef for results which use a boolean error value.
 	///
 	template <typename TValue> using BoolResult = Result<TValue, bool, true>;
+
+	/// A convenience typedef for results that contain no value only an information on an
+	/// error.
+	///
+	template <typename TError, TError TErrorSuccess = TError()> using Error = Result<void, TError, TErrorSuccess>;
+
+	/// A convenience typedef for results that contain no value only an information on an
+	/// boolean error.
+	///
+	using BoolError = Result<void, bool, true>;
 }
 
 #include "ResultImpl.h"

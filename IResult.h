@@ -48,7 +48,7 @@ namespace IC
 		///
 		/// @return Whether or not the result describes an error case.
 		///
-		explicit operator bool() const noexcept { return isOkay(); };
+		explicit operator bool() const noexcept { return wasSuccessful(); };
 
 		/// Whether or not the result describes an error case. Typically this isn't called 
 		/// directly, instead the IResult can be treated as a boolean, for example: 
@@ -57,31 +57,33 @@ namespace IC
 		///
 		/// @return Whether or not the result describes an error case. 
 		///
-		virtual bool isOkay() const noexcept = 0;
+		virtual bool wasSuccessful() const noexcept = 0;
 
-		/// @return A message describing the error. If not error occurred this will return
-		/// an empty string.
+		/// @return A message describing the error. This should not  be called if no error 
+		/// occurred.
 		///
 		virtual const std::string& getErrorMessage() const noexcept = 0;
 
 		/// @return A message describing this error and any errors which caused this error
 		/// to occur. In other words, the output contains the error message for this and
-		/// appends the full error message of the output from getCausedBy(). If no error
-		/// occured this will return an empty string.
+		/// appends the full error message of the output from getCausedBy(). This should not
+		/// be called if no error occurred. This will be evaluated each time the method is 
+		/// called. This is to avoid upfront cost if it isn't used.
 		///
 		virtual std::string getFullErrorMessage() const noexcept = 0;
 
-		/// @return A pointer to the error which caused this one to occur. If this is not
-		/// an error, or it wasn't caused by another this will return null.
+		/// @return A pointer to the error which caused this one to occur. If it wasn't caused
+		/// by another this will return null. This should not be called if no error occurred.
 		///
 		virtual const IResult* getCausedBy() const noexcept = 0;
 
 		/// This is used internally to allow different derrived classes to clone another
-		/// and therefore should be called rarely by the user of the interface.
+		/// and therefore should be called rarely by the user of the interface. This should 
+		/// not be called if no error occurred.
 		///
-		/// @return A clone of this as a unique pointer. This 
+		/// @return A clone of this as a unique pointer.
 		///
-		virtual std::unique_ptr<const IResult> clone() const noexcept = 0;
+		virtual std::unique_ptr<const IResult> cloneError() const noexcept = 0;
 
 		virtual ~IResult() noexcept {}
 	};
