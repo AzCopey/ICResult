@@ -79,8 +79,6 @@ Code Example
     
     int main()
     {
-    	srand((unsigned int)time(0));
-    
     	auto result = tryPerformOperation();
     	if (result)
     	{
@@ -90,8 +88,5 @@ Code Example
     	{
     		std::cout << result.getFullErrorMessage();
     	}
-    
-    	int a;
-    	std::cin >> a;
     }
 
