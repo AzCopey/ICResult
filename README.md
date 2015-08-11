@@ -9,7 +9,7 @@ supply output parameters from all methods which return a value as well as an err
 For example:
 
     bool tryGetValue(float& out_value);
-	
+
 Secondly it reduces the loss of context that often occurs in methods like this. When 
 false is returned an error presumably occurred internally, but we have no access to
 what caused it. 
@@ -19,20 +19,23 @@ problem when the consumer of the method gracefully handles the error. The printe
 internal error is now no longer relevant and becomes spam. It can obscure other
 genuine errors.
 
-To resolve these issues a `Result` can be used. This provides the means to return either
+To resolve these issues a Result can be used. This provides the means to return either
 an output value or an error. 
 
     Result<float, ErrorEnum> tryGetValue();
-	
+
 In the case of an error a description can be provided, reducing loss of context. In 
 addition, if the error was caused by another, it can also be returned through the 
-`Result`. The user can then use `getFullErrorMessage()` to print the current error 
+Result. The user can then use getFullErrorMessage() to print the current error 
 descripion and, recursively, the errors that caused it.
 
-For convenience, `BoolResult` has been provided which uses a boolean for the error
-type.
+3 convenience typedefs have also been supplied: Error, BoolResult and BoolError.
+Error is used when no return value is needed, bool is a specialisation for results
+that use a bool error, and BoolError combines both cases.
 
     BoolResult<float> tryGetValue();
+	Error<ErrorEnum> tryGetValue();
+	BoolError tryGetValue();
     
 Code Example
 ------------
@@ -68,10 +71,10 @@ Code Example
     			return IC::Result<float, OperationResult>(result.getValue());
     		}
     
-    		return IC::Result<float, OperationResult>(OperationResult::k_failedOperation, "The opperation could not be performed.", result);
+    		return IC::Result<float, OperationResult>(OperationResult::k_failedOperation, "The operation could not be performed.", result);
     	}
     
-    	return IC::Result<float, OperationResult>(OperationResult::k_operationNotStarted, "Failed to start opperation.");
+    	return IC::Result<float, OperationResult>(OperationResult::k_operationNotStarted, "Failed to start operation.");
     }
     
     int main()
@@ -81,7 +84,7 @@ Code Example
     	auto result = tryPerformOperation();
     	if (result)
     	{
-    		std::cout << "The result of the opperation is: " << result.getValue();
+    		std::cout << "The result of the operation is: " << result.getValue();
     	}
     	else
     	{

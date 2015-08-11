@@ -58,10 +58,13 @@ namespace IC
 	/// Result. The user can then use getFullErrorMessage() to print the current error 
 	/// descripion and, recursively, the errors that caused it.
 	///
-	/// For convenience, BoolResult has been provided which uses a boolean for the error
-	/// type.
+	/// 3 convenience typedefs have also been supplied: Error, BoolResult and BoolError.
+	/// Error is used when no return value is needed, bool is a specialisation for results
+	/// that use a bool error, and BoolError combines both cases.
 	///
 	///     BoolResult<float> tryGetValue();
+	///		Error<ErrorEnum> tryGetValue();
+	///		BoolError tryGetValue();
 	///
 	template <typename TValue, typename TError, TError TErrorSuccess = TError()> class Result final : public IResult
 	{
